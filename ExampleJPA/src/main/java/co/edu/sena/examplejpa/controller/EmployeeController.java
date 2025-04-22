@@ -7,6 +7,8 @@ package co.edu.sena.examplejpa.controller;
 
 
 import co.edu.sena.examplejpa.model.Employee;
+import co.edu.sena.examplejpa.persistence.DAOFactory;
+import co.edu.sena.examplejpa.persistence.EntityManagerHelper;
 import java.util.List;
 
 /**
@@ -15,7 +17,7 @@ import java.util.List;
  */
 public class EmployeeController implements IEmployeeController {
 
-    DBEmployee dbe = new DBEmployee();
+
     
     @Override
     public void insert(Employee employee) throws Exception {
@@ -31,26 +33,29 @@ public class EmployeeController implements IEmployeeController {
             throw new Exception("El nombre es obligatorio");
         }
         
-        if("".equals(employee.getAddress())){
+        if("".equals(employee.getDireccion())){
             throw new Exception("La direccion es obligatoria");
         }
-        if("".equals(employee.getPhone())){
+        if("".equals(employee.getTelefono())){
             throw new Exception("El telefono es obligatoria");
 
         }
         //FK
-        if(employee.getEmployeeType() == null){
+        if(employee.getTypeId()== null){
             throw new Exception("El tipo de empleado es obligatorio");
         }
         
         //la FK no es autocremental, se debe validar el empleado
-        Employee employeeExists = dbe.findById(employee.getDocument());
+        Employee employeeExists = DAOFactory.getEmployeeDAO().findById(employee.getDocument());
         if(employeeExists != null){
-            throw new Exception("Ya existe u empleado cone se documento");
+            throw new Exception("Ya existe un empleado con ese documento");
         }
         
         //insertar
-        dbe.insert(employee);
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getEmployeeDAO().insert(employee);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
     }
 
     @Override
@@ -67,52 +72,63 @@ public class EmployeeController implements IEmployeeController {
             throw new Exception("El nombre es obligatorio");
         }
         
-        if("".equals(employee.getAddress())){
+        if("".equals(employee.getDireccion())){
             throw new Exception("La direccion es obligatoria");
         }
-        if("".equals(employee.getPhone())){
+        if("".equals(employee.getTelefono())){
             throw new Exception("El telefono es obligatoria");
 
         }
         //FK
-        if(employee.getEmployeeType() == null){
+        if(employee.getTypeId()== null){
             throw new Exception("El tipo de empleado es obligatorio");
         }
         
-        Employee employeeExists = dbe.findById(employee.getDocument());
+        Employee employeeExists = DAOFactory.getEmployeeDAO().findById(employee.getDocument());
         if(employeeExists != null){
             throw new Exception("No existe el empleado");
         }
         
-        //insertar
-        dbe.update(employee);
+        //merge
+        employeeExists.setDireccion(employee.getDireccion());
+        employeeExists.setFullname(employee.getFullname());
+        employeeExists.setTelefono(employee.getTelefono());
+        employeeExists.setTypeId(employee.getTypeId());
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getEmployeeDAO().update(employeeExists);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
+        
     }
 
     @Override
-    public void delete(long document) throws Exception {
+    public void delete(Long document) throws Exception {
         if(document == 0){
             throw new Exception("El documento es obligatorio");
         }
         
-        Employee employeeExists = dbe.findById(document);
+        Employee employeeExists = DAOFactory.getEmployeeDAO().findById(document);
         if(employeeExists != null){
             throw new Exception("No existe el empleado");
         }
         
-        dbe.delete(document);
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getEmployeeDAO().delete(employeeExists);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
     }
 
     @Override
-    public List<Employee> findAll() {
-        return dbe.findAll();
+    public List<Employee> findAll() throws Exception{
+        return DAOFactory.getEmployeeDAO().findAll();
     }
 
     @Override
-    public Employee findById(long document) throws Exception {
+    public Employee findById(Long document) throws Exception {
         if(document == 0){
             throw new Exception("El documento es obligatorio");
         }
-        return dbe.findById(document);
+        return DAOFactory.getEmployeeDAO().findById(document);
     }
     
 }

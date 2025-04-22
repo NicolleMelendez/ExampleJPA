@@ -136,7 +136,7 @@ public class Employee implements Serializable {
 
     @Override
     public String toString() {
-        return "co.edu.sena.mavenproject1.Employee[ document=" + document + " ]";
+        return fullname;
     }
     
 }

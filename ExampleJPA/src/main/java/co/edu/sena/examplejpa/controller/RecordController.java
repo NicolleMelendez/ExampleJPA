@@ -1,15 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package co.edu.sena.examplejpa.controller;
 
-import co.edu.sena.examplejdbc.bd.DBEmployee;
-import co.edu.sena.examplejdbc.bd.DBKey;
-import co.edu.sena.examplejdbc.bd.DBRecord;
-import co.edu.sena.examplejdbc.model.Employee;
-import co.edu.sena.examplejdbc.model.Key;
+import co.edu.sena.examplejpa.model.KeyRoom;
 import co.edu.sena.examplejpa.model.Record;
+import co.edu.sena.examplejpa.persistence.DAOFactory;
+import co.edu.sena.examplejpa.persistence.EntityManagerHelper;
 import java.util.List;
 
 /**
@@ -17,20 +11,16 @@ import java.util.List;
  * @author Nicolle
  */
 public class RecordController implements IRecordController{
-
-    private DBRecord dbr = new DBRecord();
-    private DBEmployee dbe = new DBEmployee();
-    private DBKey dbk = new DBKey();
     
     @Override
     public void insert(Record record) throws Exception {
         if(record == null){
            throw new Exception("El registro es nulo") ;
         }
-        if("".equals(record.getDateRecord())){
+        if(record.getDateRecord() == null){
             throw new Exception("La fecha es obligatoria");
         }
-        if("".equals(record.getStartTime())){
+        if(record.getStartTime() == null){
             throw new Exception("El comienzo del tiempo es obligatorio");
         }
 
@@ -43,10 +33,16 @@ public class RecordController implements IRecordController{
             throw new Exception("El tipo de llave es obligatorio");
         }
         
+        if("".equals(record.getStatus())){
+            throw new Exception("El estado es obligatorio");
+        }
 
         
         //insertar
-        dbr.insert(record);
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getRecordDAO().insert(record);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
         
         
     }
@@ -61,11 +57,11 @@ public class RecordController implements IRecordController{
             throw new Exception("El id es obligatorio");
         }
         
-        if ("".equals(record.getDateRecord())) {
+        if (record.getDateRecord() == null) {
             throw new Exception("La fecha es obligatoria");
         }
         
-        if ("".equals(record.getStartTime())) {
+        if (record.getStartTime() == null) {
             throw new Exception("El inicio es obligatio");
         }
         
@@ -81,38 +77,58 @@ public class RecordController implements IRecordController{
             throw new Exception("El estado es obligatorio.");
         }
         
-        //actualizar
-        dbr.update(record);    
+        Record recordExists = DAOFactory.getRecordDAO().findById(record.getId());
+        if(recordExists == null){
+            throw new Exception("No existe el registro");
+        }
+        
+        
+        //merge
+        recordExists.setDateRecord(record.getDateRecord());
+        recordExists.setEmployeeId(record.getEmployeeId());
+        recordExists.setEndTime(record.getEndTime());
+        recordExists.setKeyId(record.getKeyId());
+        recordExists.setStartTime(record.getStartTime());
+        recordExists.setStatus(record.getStatus());
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getRecordDAO().update(recordExists);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
+         
     }
 
     @Override
-    public void delete(int id) throws Exception {
+    public void delete(Integer id) throws Exception {
         if(id == 0){
             throw new Exception("El id es obligatorio");
         }    
 
-        Key keyExists = dbk.findById(id);
-        if(keyExists == null){
-            throw new Exception("No una llave con ese documento");
+        Record recordExists = DAOFactory.getRecordDAO().findById(id);
+        if(recordExists == null){
+            throw new Exception("No hay un registro en este documento");
         }
         
         //eliminar
-        dbr.delete(id);
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getRecordDAO().delete(recordExists);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
+        
         
     }
 
     @Override
     public List<Record> findAll() throws Exception {
-        return dbr.findAll();
+        return DAOFactory.getRecordDAO().findAll();
 
     }
 
     @Override
-    public Record findById(int id) throws Exception {
+    public Record findById(Integer id) throws Exception {
         if(id == 0){
             throw new Exception("El documento es obligatorio");
         } 
-        return dbr.findById(id);
+        return DAOFactory.getRecordDAO().findById(id);
     }
     
 }

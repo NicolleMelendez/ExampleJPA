@@ -15,7 +15,7 @@ import java.util.List;
 public interface IKeyRoomController {
     public void insert (KeyRoom keyRoom)throws Exception;
     public void update (KeyRoom keyRoom)throws Exception;
-    public void delete (KeyRoom keyRoom)throws Exception;
+    public void delete (Integer id)throws Exception;
     public KeyRoom findById(Integer id)throws Exception;
     public List<KeyRoom> findAll()throws Exception;
 }

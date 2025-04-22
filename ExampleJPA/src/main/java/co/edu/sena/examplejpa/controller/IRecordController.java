@@ -16,7 +16,7 @@ import java.util.List;
 public interface IRecordController {
     public void insert(Record record)throws Exception;
     public void update(Record record)throws Exception;
-    public void delete (Record record)throws Exception;
+    public void delete (Integer id)throws Exception;
     public List<Record> findAll()throws Exception;
     public Record findById(Integer id)throws Exception;
 }

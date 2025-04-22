@@ -15,7 +15,7 @@ import java.util.List;
 public interface IEmployeeTypeController {
     public void insert(EmployeeType employeeType) throws Exception;
     public void update(EmployeeType employeeType)throws Exception;
-    public void delete(EmployeeType employeeType)throws Exception;
+    public void delete(Integer id)throws Exception;
     public List<EmployeeType> findAll()throws Exception;
     public EmployeeType findById(Integer id)throws Exception;
 }

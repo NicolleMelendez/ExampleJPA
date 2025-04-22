@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -6,6 +7,8 @@ package co.edu.sena.examplejpa.controller;
 
 
 import co.edu.sena.examplejpa.model.KeyRoom;
+import co.edu.sena.examplejpa.persistence.DAOFactory;
+import co.edu.sena.examplejpa.persistence.EntityManagerHelper;
 import java.util.List;
 
 /**
@@ -14,7 +17,7 @@ import java.util.List;
  */
 public class KeyRoomController implements IKeyRoomController{
     
-    DBKey dbk = new DBKey();
+
 
     @Override
     public void insert(KeyRoom keyRoom) throws Exception {
@@ -24,15 +27,20 @@ public class KeyRoomController implements IKeyRoomController{
       if("".equals(keyRoom.getName())){
           throw new Exception("El nombre es obligatoria");
       }
-      if(keyRoom.getCount() < 1){
-          throw new Exception("El número de llaves es obligatoria");
-      }
       if("".equals(keyRoom.getCount())){
           throw new Exception("El conteo es obligatoria");
       }
+      if(keyRoom.getCount() < 1){
+          throw new Exception("El número de llaves es obligatoria");
+      }
 
-      
-      dbk.insert(keyRoom);
+
+
+      //insertar
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getKeyRoomDAO().insert(keyRoom);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
         
     }
 
@@ -55,38 +63,54 @@ public class KeyRoomController implements IKeyRoomController{
           throw new Exception("El conteo es obligatoria");
         }
         
-        KeyRoom keyExists = dbk.findById(keyRoom.getId());
+        KeyRoom keyExists = DAOFactory.getKeyRoomDAO().findById(keyRoom.getId());
         if(keyExists == null){
             throw new Exception("La llave no existe");
         }
         
-        dbk.update(keyRoom);
+        
+        //merge
+        keyExists.setCount(keyRoom.getCount());
+        keyExists.setName(keyRoom.getName());
+        keyExists.setObservation(keyRoom.getObservation());
+        keyExists.setRoom(keyRoom.getRoom());
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getKeyRoomDAO().update(keyExists);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
         
     }
 
     @Override
-    public void delete(int id) throws Exception {
+    public void delete(Integer id) throws Exception {
         if(id == 0){
             throw new Exception("El Id es obligatorio");
         }
         
-        KeyRoom keyExists = dbk.findById(id);
+        KeyRoom keyExists = DAOFactory.getKeyRoomDAO().findById(id);
         if(keyExists == null){
             throw new Exception("La llave no existe");
         }
-        dbk.delete(id);
+        
+        
+        //eliminar
+        EntityManagerHelper.beginTransaction();
+        DAOFactory.getKeyRoomDAO().delete(keyExists);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
         
     }
 
     @Override
     public List<KeyRoom> findAll() throws Exception {
-        return dbk.findAll();
+        return DAOFactory.getKeyRoomDAO().findAll();
     }
 
     @Override
-    public KeyRoom findById(int id) throws Exception {
+    public KeyRoom findById(Integer id) throws Exception {
         if(id == 0){
             throw new Exception("El Id es obligatorio");
         }
-        return dbk.findById(id);    }
+        return DAOFactory.getKeyRoomDAO().findById(id);
+    }
 }

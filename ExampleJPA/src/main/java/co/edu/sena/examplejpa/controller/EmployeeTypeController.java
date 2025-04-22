@@ -18,9 +18,7 @@ import java.util.List;
  */
 public class EmployeeTypeController implements IEmployeeTypeController{
 
-    
-
-    
+ 
     
     @Override
     public void insert(EmployeeType employeeType) throws Exception {
@@ -52,46 +50,53 @@ public class EmployeeTypeController implements IEmployeeTypeController{
       }
         
         //consultar si el employeetype exista en la bd
-        EmployeeType employeeTypeExists = dbe.findById(employeeType.getId());
+        EmployeeType employeeTypeExists = DAOFactory.getEmployeeTypeDAO().findById(employeeType.getId());
         if(employeeTypeExists == null){
             throw new Exception("El tipo de empleado no existe");
         }
         
         
-        //actualizar
+        
+        //merge: todos los campos menos las FK
+        employeeTypeExists.setDescript(employeeType.getDescript());
         EntityManagerHelper.beginTransaction();
         DAOFactory.getEmployeeTypeDAO().update(employeeType);
         EntityManagerHelper.commit();
         EntityManagerHelper.closeEntityManager();
+        
+
     }
 
     @Override
-    public void delete(int id) throws Exception {
+    public void delete(Integer id) throws Exception {
         if(id == 0){
             throw new Exception("El Id es obligatorio");
         }
         //consultar si el employeetype exista en la bd
-        EmployeeType employeeTypeExists = dbe.findById(id);
+        EmployeeType employeeTypeExists = DAOFactory.getEmployeeTypeDAO().findById(id);
         if(employeeTypeExists == null){
             throw new Exception("El tipo de empleado no existe");
         }
         
         //eliminar
+        EntityManagerHelper.beginTransaction();
         DAOFactory.getEmployeeTypeDAO().delete(employeeTypeExists);
+        EntityManagerHelper.commit();
+        EntityManagerHelper.closeEntityManager();
         
     }
 
     @Override
     public List<EmployeeType> findAll() throws Exception {
-        return dbe.findAll();
+        return DAOFactory.getEmployeeTypeDAO().findAll();
     }
 
     @Override
-    public EmployeeType findById(int id) throws Exception {
+    public EmployeeType findById(Integer id) throws Exception {
         if(id == 0){
             throw new Exception("El Id es obligatorio");
         }
-        return dbe.findById(id);
+        return DAOFactory.getEmployeeTypeDAO().findById(id);
     }
 
 }
